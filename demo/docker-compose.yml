@@ -1,0 +1,30 @@
+version: '3.3'
+
+services:
+    #service 1: definition of mysql database
+    db:
+      image: mysql:latest
+      container_name: test-mysql   
+      environment:
+        - MYSQL_ROOT_PASSWORD=mypassword - MYSQL_DATABASE=dbTesting  - MYSQL_USER=sa - MYSQL_PASSWORD=mypassword
+      ports:
+        - "3306:3306"
+      restart: always
+   
+    #service 3: definition of your spring-boot app 
+    parkingservice:                        #it is just a name, which will be used only in this file.
+      image: parking-service               #name of the image after dockerfile executes
+      container_name: parking-lot-api  #name of the container created from docker image
+      build:
+        context: .                          #docker file path (. means root directory)
+        dockerfile: Dockerfile              #docker file name
+      ports:
+        - "8084:8080"                       #docker containter port with your os port
+      restart: always
+        
+      depends_on:                           #define dependencies of this app
+        - db                                #dependency name (which is defined with this name 'db' in this file earlier)
+      environment:
+        SPRING_DATASOURCE_URL: jdbc:mysql://test-mysql:3306/dbTesting?createDatabaseIfNotExist=true 
+        SPRING_DATASOURCE_USERNAME: sa
+        SPRING_DATASOURCE_PASSWORD: mypassword
